@@ -1,34 +1,62 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
+const User = require("../models/User");
 
-const protect = (req, res, next) => {
+const protect = async (req, res, next) => {
     try {
-        //read authentication header
+        // Read Authorization Header
         const authHeader = req.headers.authorization;
 
-        //check if header exists
-        if(!authHeader || !authHeader.startsWith("Bearer")) {
+        // Check if Authorization header exists
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
             return res.status(401).json({
                 success: false,
-                message: "Not authorized, token missing",
+                message: "Authentication required. Please login.",
             });
         }
 
-    //extract bearer token
-    const token = authHeader.split(" ")[1];
-     //verify jwt
+        // Extract Token
+        const token = authHeader.split(" ")[1];
 
-     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        // Verify Token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-     // attach decoded payload to req.user
+        // Find latest user from database
+        const user = await User.findByPk(decoded.id, {
+            attributes: { exclude: ["password"] },
+        });
 
-     req.user = decoded;
+        // User no longer exists
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: "User no longer exists.",
+            });
+        }
 
-     // continue to next middleware/route
-     next();
+        // Attach user to request
+        req.user = user;
+
+        next();
+
     } catch (error) {
-        return res.status(401).json({
+
+        if (error.name === "TokenExpiredError") {
+            return res.status(401).json({
+                success: false,
+                message: "Token has expired. Please login again.",
+            });
+        }
+
+        if (error.name === "JsonWebTokenError") {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid authentication token.",
+            });
+        }
+
+        return res.status(500).json({
             success: false,
-            message: "Not authorized, invalid token",
+            message: "Internal server error.",
         });
     }
 };
