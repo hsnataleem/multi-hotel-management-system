@@ -418,19 +418,3 @@ K -->|No| L[403 Forbidden]
 
 K -->|Yes| M[Execute Controller]
 ```
-
----
-
-# Conclusion
-
-The backend of the Multi Hotel Management & Reservation System is built using:
-
-- Node.js
-- Express.js
-- Sequelize ORM
-- PostgreSQL
-- JWT Authentication
-- bcrypt Password Hashing
-- Role-Based Access Control (RBAC)
-
-The application follows the MVC architecture and implements secure authentication, authorization, ownership verification, hotel management, room management, booking management, and admin approval workflows.
