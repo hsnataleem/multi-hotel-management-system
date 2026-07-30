@@ -59,6 +59,21 @@ const Hotel = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: true,
     },
+
+    coverImage: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    status: {
+      type: DataTypes.ENUM(
+        "PENDING",
+        "APPROVED",
+        "REJECTED"
+      ),
+      defaultValue: "PENDING",
+    },
+
   },
   {
     timestamps: true,

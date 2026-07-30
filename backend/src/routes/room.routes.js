@@ -12,31 +12,33 @@ const {
 const { protect } = require("../middlewares/auth.middleware");
 const { authorize } = require("../middlewares/role.middleware");
 
-// Public Routes
+const validate = require("../middlewares/validate.middleware");
+const roomSchema = require("../validations/room.validation");
+
 router.get("/", getRooms);
+
 router.get("/:roomId", getRoom);
 
-// Protected Routes
 router.post(
     "/",
     protect,
-    authorize("Owner"),
+    authorize("OWNER"),
+    validate(roomSchema),
     addRoom
 );
 
 router.put(
     "/:roomId",
     protect,
-    authorize("Owner"),
+    authorize("OWNER"),
     editRoom
 );
 
 router.delete(
     "/:roomId",
     protect,
-    authorize("Owner"),
+    authorize("OWNER"),
     removeRoom
 );
 
-module.exports = router;
 module.exports = router;

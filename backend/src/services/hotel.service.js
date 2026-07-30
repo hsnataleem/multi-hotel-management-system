@@ -1,5 +1,6 @@
 const Hotel = require("../models/Hotel");
 const createHotel = async (hotelData, ownerId) => {
+const { Op } = require("sequelize");
 
     // Create hotel with authenticated owner's ID
     const hotel = await Hotel.create({
@@ -85,6 +86,64 @@ const getMyHotels = async (ownerId) => {
     return hotels;
 };
 
+
+//search hotel
+
+const searchHotels = async (query) => {
+
+    const {
+        city,
+        rating,
+        food,
+        availability,
+    } = query;
+
+    const where = {};
+
+    // City Filter
+    if (city) {
+        where.city = {
+            [Op.iLike]: `%${city}%`,
+        };
+    }
+
+    // Minimum Rating
+    if (rating) {
+        where.rating = {
+            [Op.gte]: Number(rating),
+        };
+    }
+
+    // Food Available
+    if (food !== undefined) {
+        where.food = food === "true";
+    }
+
+    // Hotel Available
+    if (availability !== undefined) {
+        where.availability = availability === "true";
+    }
+
+    const hotels = await Hotel.findAll({
+
+        where,
+
+        include: [
+            {
+                model: Room,
+            },
+        ],
+
+        order: [
+            ["rating", "DESC"],
+            ["hotelName", "ASC"],
+        ],
+
+    });
+
+    return hotels;
+};
+
 module.exports = {
     createHotel,
     getAllHotels,
@@ -92,4 +151,5 @@ module.exports = {
     updateHotel,
     deleteHotel,
     getMyHotels,
+    searchHotels,
 };

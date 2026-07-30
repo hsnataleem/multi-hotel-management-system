@@ -1,9 +1,14 @@
-const { createHotel, getAllHotels, getHotelById } = require("../services/hotel.service");
+const { createHotel, getAllHotels, getHotelById, searchHotels, updateHotel, deleteHotel, getMyHotels } = require("../services/hotel.service");
 
 const addHotel = async (req, res) => {
     try {
         // Hotel data comes from request body
-        const hotelData = req.body;
+        const hotelData = {
+            ...req.body,
+            coverImage: req.file
+                ? `/uploads/hotels/${req.file.filename}`
+                : null,
+        };
 
         // Owner ID comes from authenticated user
         const ownerId = req.user.id;
@@ -19,7 +24,7 @@ const addHotel = async (req, res) => {
 
     } catch (error) {
 
-        res.status(500).json({
+        res.status(400).json({
             success: false,
             message: error.message,
         });
@@ -67,7 +72,7 @@ const getHotel = async (req, res) => {
         });
 
     }
-}; 
+};
 
 
 // update hotel
@@ -156,6 +161,38 @@ const myHotels = async (req, res) => {
     }
 };
 
+// search hotel
+
+const search = async (req, res) => {
+
+    try {
+
+        const hotels = await searchHotels(req.query);
+
+        res.status(200).json({
+
+            success: true,
+
+            count: hotels.length,
+
+            data: hotels,
+
+        });
+
+    } catch (error) {
+
+        res.status(400).json({
+
+            success: false,
+
+            message: error.message,
+
+        });
+
+    }
+
+};
+
 module.exports = {
     addHotel,
     getHotels,
@@ -163,4 +200,5 @@ module.exports = {
     updateHotelController,
     deleteHotelController,
     myHotels,
+    search,
 };

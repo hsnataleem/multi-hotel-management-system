@@ -1,81 +1,61 @@
 const express = require("express");
-
 const router = express.Router();
 
 const {
-
     create,
     getBooking,
     myBookings,
     cancel,
     ownerBookings,
     updateStatus,
-
 } = require("../controllers/booking.controller");
 
 const { protect } = require("../middlewares/auth.middleware");
 const { authorize } = require("../middlewares/role.middleware");
 
+const validate = require("../middlewares/validate.middleware");
+const bookingSchema = require("../validations/booking.validation");
 
-// =======================================
-// Customer Routes
-// =======================================
-
-// Create Booking
 router.post(
     "/",
     protect,
-    authorize("Customer"),
+    authorize("CUSTOMER"),
+    validate(bookingSchema),
     create
 );
 
-// Booking History
 router.get(
     "/my-bookings",
     protect,
-    authorize("Customer"),
+    authorize("CUSTOMER"),
     myBookings
 );
 
-// Cancel Booking
 router.patch(
     "/:bookingId/cancel",
     protect,
-    authorize("Customer"),
+    authorize("CUSTOMER"),
     cancel
 );
 
-
-// =======================================
-// Owner Routes
-// =======================================
-
-// Owner Dashboard
 router.get(
     "/owner",
     protect,
-    authorize("Owner"),
+    authorize("OWNER"),
     ownerBookings
 );
 
-// Approve / Reject Booking
 router.patch(
     "/:bookingId/status",
     protect,
-    authorize("Owner"),
+    authorize("OWNER"),
     updateStatus
 );
-
-
-// =======================================
-// Common Route
-// =======================================
 
 router.get(
     "/:bookingId",
     protect,
     getBooking
 );
-
 
 module.exports = router;

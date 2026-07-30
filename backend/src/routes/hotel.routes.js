@@ -1,17 +1,20 @@
 const express = require("express");
 const router = express.Router();
-const { addHotel, getHotels, getHotel, updateHotelController, deleteHotelController, myHotels } = require("../controllers/hotel.controller");
+const { addHotel, getHotels, getHotel, updateHotelController, deleteHotelController, myHotels, search } = require("../controllers/hotel.controller");
 const { protect } = require("../middlewares/auth.middleware");
 const { authorize } = require("../middlewares/role.middleware");
 const roomRoutes = require('./room.routes');
-
+const upload = require("../middlewares/upload.middleware");
+const validate = require("../middlewares/validate.middleware");
+const hotelSchema = require("../validations/hotel.validation")
 
 router.get("/", getHotels);
+router.get("/search", search);
 
 router.get(
     "/my-hotels",
     protect,
-    authorize("OWNER"),
+    authorize("Owner"),
     myHotels
 );
 
@@ -27,6 +30,8 @@ router.post(
     "/",
     protect,
     authorize("Owner"),
+    upload.single("coverImage"),
+    validate(hotelSchema),
     addHotel
 );
 
